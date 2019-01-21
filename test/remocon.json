@@ -32,9 +32,37 @@
     "format": "nec",
     "custom": "e384",
     "buttons": {
-      "on": ["20df"],
-      "off": ["24db"],
-      "favarite": ["2ad5"]
+      "on": [
+        "20df"
+      ],
+      "off": [
+        "24db"
+      ],
+      "favarite": [
+        "2ad5"
+      ]
+    }
+  },
+  "aircon(daikin)": {
+    "format": "aeha",
+    "custom": "da11",
+    "buttons": {
+      "hot-on": [
+        "0200020000",
+        "0200004922"
+      ],
+      "hot-off": [
+        "0200020000",
+        "0200004822"
+      ],
+      "cool-on": [
+        "0200020000",
+        "0200003938"
+      ],
+      "cool-off": [
+        "0200020000",
+        "0200003838"
+      ]
     }
   }
 }

@@ -3,38 +3,38 @@
     "format": "nec",
     "custom": "bf40",
     "buttons": {
-      "on": "12ed",
-      "1": "01fe",
-      "2": "02fd",
-      "3": "03fc",
-      "4": "04fb",
-      "5": "05fa",
-      "6": "06f9",
-      "7": "07f8",
-      "8": "08f7",
-      "9": "09f6",
-      "10": "0af5",
-      "11": "0bf4",
-      "12": "0cf3",
-      "input change": "0ff0"
+      "on": ["12ed"],
+      "1": ["01fe"],
+      "2": ["02fd"],
+      "3": ["03fc"],
+      "4": ["04fb"],
+      "5": ["05fa"],
+      "6": ["06f9"],
+      "7": ["07f8"],
+      "8": ["08f7"],
+      "9": ["09f6"],
+      "10": ["0af5"],
+      "11": ["0bf4"],
+      "12": ["0cf3"],
+      "input change": ["0ff0"]
     }
   },
   "light(panasonic)": {
     "format": "aeha",
     "custom": "522c",
     "buttons": {
-      "on": "002C25",
-      "off": "002F26",
-      "energy save": "002D24"
+      "on": ["002C25"],
+      "off": ["002F26"],
+      "energy save": ["002D24"]
     }
   },
   "light(beamtec)": {
     "format": "nec",
     "custom": "e384",
     "buttons": {
-      "on": "20df",
-      "off": "24db",
-      "favarite": "2ad5"
+      "on": ["20df"],
+      "off": ["24db"],
+      "favarite": ["2ad5"]
     }
   }
 }

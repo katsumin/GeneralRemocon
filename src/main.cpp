@@ -31,7 +31,23 @@ void loadConfig()
       Serial.println(" buttons");
       for (auto kv2 : buttons)
       {
-        Serial.printf("  name:%s -> data:%s\n", kv2.key, kv2.value.as<char *>());
+        JsonArray &values = kv2.value;
+        std::vector<const char *> vec;
+        for (auto value : values)
+        {
+          const char *p = value.as<char *>();
+          // b.push_back(value.as<char *>());
+          vec.push_back(p);
+          Serial.println(p);
+        }
+        String s = "";
+        for (const char *d : vec)
+        {
+          s.concat(d);
+        }
+
+        Serial.printf("  name:%s -> datas:%s", kv2.key, s.c_str());
+        // Serial.printf("  name:%s -> data:%s\n", kv2.key, kv2.value.as<char *>());
       }
     }
   }

@@ -2,8 +2,10 @@
 #include <SD.h>
 #include <Arduino.h>
 #include "PLUSEncoder.h"
+#include "Device.h"
 
 const char *filename = "/remocon.json";
+std::map<const char *, Device *> remocon;
 void loadConfig()
 {
   if (!SD.exists(filename))
@@ -19,37 +21,21 @@ void loadConfig()
 
   if (root.success())
   {
-    Serial.println(root.size());
+    // Serial.println(root.size());
     for (auto kv : root)
     {
-      Serial.println(kv.key);
-      JsonObject &o = root[kv.key];
+      const char *name = kv.key;
+      // Serial.println(name);
+      JsonObject &o = root[name];
       const char *format = o["format"];
-      const char *custom = o["custom"];
-      Serial.printf(" format:%s, customCode:%s\n", format, custom);
-      JsonObject &buttons = o["buttons"];
-      Serial.println(" buttons");
-      for (auto kv2 : buttons)
-      {
-        JsonArray &values = kv2.value;
-        std::vector<const char *> vec;
-        for (auto value : values)
-        {
-          const char *p = value.as<char *>();
-          vec.push_back(p);
-          // Serial.println(p);
-        }
-        String s = "[";
-        for (const char *d : vec)
-        {
-          s.concat(d);
-          s.concat(",");
-        }
-        s.concat("]");
-
-        Serial.printf("  name:%s -> datas:%s\n", kv2.key, s.c_str());
-        // Serial.printf("  name:%s -> data:%s\n", kv2.key, kv2.value.as<char *>());
-      }
+      Device *d = NULL;
+      if (strcmp(format, "nec") == 0)
+        d = new DeviceNec(name, o);
+      else if (strcmp(format, "aeha") == 0)
+        d = new DeviceAeha(name, o);
+      else if (strcmp(format, "sony") == 0)
+        d = new DeviceSony(name, o);
+      remocon[name] = d;
     }
   }
   else
@@ -63,6 +49,12 @@ void setup()
   M5.begin();
   Wire.begin();
   loadConfig();
+
+  for (auto d : remocon)
+  {
+    d.second->print();
+    d.second->send();
+  }
 }
 
 void loop()

@@ -51,7 +51,8 @@ void Device::loadJson(const char *filename, std::map<const char *, Device *> &re
         d = new DeviceAeha(name, o);
       else if (strcmp(format, "sony") == 0)
         d = new DeviceSony(name, o);
-      remocon[name] = d;
+      if (d != NULL)
+        remocon[name] = d;
     }
   }
   else

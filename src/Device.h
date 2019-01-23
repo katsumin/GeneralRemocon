@@ -6,6 +6,9 @@
 #include <M5Stack.h>
 #include <map>
 
+/**
+ * リモコンデバイス基底クラス
+ */
 class Device
 {
 private:
@@ -15,24 +18,9 @@ private:
   std::map<const char *, std::vector<const char *>> _buttons;
 
 public:
-  Device(const char *name, JsonObject &o)
-  {
-    _name = name;
-    _format = o["format"];
-    _custom_code = o["custom"];
-    JsonObject &buttons = o["buttons"];
-    for (auto kv2 : buttons)
-    {
-      JsonArray &values = kv2.value;
-      std::vector<const char *> vec;
-      for (auto value : values)
-      {
-        const char *p = value.as<char *>();
-        vec.push_back(p);
-      }
-      _buttons[kv2.key] = vec;
-    }
-  }
+  static void loadJson(const char *filename, std::map<const char *, Device *> &remocon);
+
+  Device(const char *name, JsonObject &o);
   ~Device() {}
   const char *getName() { return _name; }
   const char *getFormat() { return _format; }
@@ -64,31 +52,33 @@ public:
   virtual void send() {}
 };
 
+/**
+ * NEC形式
+ */
 class DeviceNec : public Device
 {
 public:
   DeviceNec(const char *name, JsonObject &o) : Device(name, o){};
-  virtual void send()
-  {
-    Serial.println("nec");
-  }
+  virtual void send();
 };
+
+/**
+ * AEHA形式
+ */
 class DeviceAeha : public Device
 {
 public:
   DeviceAeha(const char *name, JsonObject &o) : Device(name, o){};
-  virtual void send()
-  {
-    Serial.println("aeha");
-  }
+  virtual void send();
 };
+
+/**
+ * SONY形式
+ */
 class DeviceSony : public Device
 {
 public:
   DeviceSony(const char *name, JsonObject &o) : Device(name, o){};
-  virtual void send()
-  {
-    Serial.println("sony");
-  }
+  virtual void send();
 };
 #endif

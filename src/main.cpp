@@ -6,78 +6,56 @@
 
 const char *filename = "/remocon.json";
 std::map<const char *, Device *> remocon;
-void loadConfig()
-{
-  if (!SD.exists(filename))
-  {
-    Serial.println("no file!");
-    return;
-  }
-  File file = SD.open(filename);
-  DynamicJsonBuffer jsonBuffer;
-
-  // Parse the root object
-  JsonObject &root = jsonBuffer.parseObject(file);
-
-  if (root.success())
-  {
-    // Serial.println(root.size());
-    for (auto kv : root)
-    {
-      const char *name = kv.key;
-      // Serial.println(name);
-      JsonObject &o = root[name];
-      const char *format = o["format"];
-      Device *d = NULL;
-      if (strcmp(format, "nec") == 0)
-        d = new DeviceNec(name, o);
-      else if (strcmp(format, "aeha") == 0)
-        d = new DeviceAeha(name, o);
-      else if (strcmp(format, "sony") == 0)
-        d = new DeviceSony(name, o);
-      remocon[name] = d;
-    }
-  }
-  else
-  {
-    Serial.println(F("Failed to read file, using default configuration"));
-  }
-}
-
+std::vector<const char *> keys;
 void setup()
 {
   M5.begin();
   Wire.begin();
-  loadConfig();
 
+  Device::loadJson(filename, remocon);
   for (auto d : remocon)
-  {
-    d.second->print();
-    d.second->send();
-  }
+    keys.push_back(d.first);
 }
 
+int device_index = 0;
 void loop()
 {
   M5.update();
 
+  const char *key = keys[device_index];
+  Device *d = remocon[key];
   if (PlusEncoder.update())
   {
     // 長押し
     if (PlusEncoder.isLongClick())
+    {
       //   _menu.moveUp();
       Serial.println("longClick");
-    // エンコーダ正回転
+    }
+    // エンコーダ逆回転
     if (PlusEncoder.wasDown())
+    {
+      device_index = (--device_index < 0) ? keys.size() - 1 : device_index;
+      key = keys[device_index];
       // _menu.moveNext();
       Serial.println("down");
-    // エンコーダ逆回転
+      Serial.println(key);
+    }
+    // エンコーダ正回転
     if (PlusEncoder.wasUp())
+    {
+      device_index = (++device_index >= keys.size()) ? 0 : device_index;
+      key = keys[device_index];
       // _menu.movePrev();
       Serial.println("up");
+      Serial.println(key);
+    }
     // クリック
     if (PlusEncoder.isClick())
+    {
       // _menu.selectItem();
       Serial.println("click");
+      d->send();
+    }
   }
 }

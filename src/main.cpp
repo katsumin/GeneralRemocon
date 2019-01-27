@@ -4,12 +4,13 @@
 #include "PLUSEncoder.h"
 #include "Device.h"
 
-// TFT_eSprite stext1 = TFT_eSprite(&M5.Lcd); // Sprite object graph1
+#define BAR_WIDTH (8 * 20)
+#define BAR_HEIGHT (1 * 20)
+TFT_eSprite stext1 = TFT_eSprite(&M5.Lcd); // Sprite object graph1
 // TFT_eSprite stext2 = TFT_eSprite(&M5.Lcd); // Sprite object graph1
 const char *filename = "/remocon.json";
 std::map<const char *, Device *> remocon;
 std::vector<const char *> device_keys;
-// std::vector<const char *> button_keys;
 void setup()
 {
   M5.begin();
@@ -21,14 +22,13 @@ void setup()
     device_keys.push_back(d.first);
 
   M5.Lcd.clear(BLACK);
-  M5.Lcd.setTextSize(1);
 
-  // stext1.setColorDepth(8);
-  // stext1.createSprite(8 * 20, 16);
-  // stext1.fillSprite(TFT_BLUE);                      // Fill sprite with blue
-  // stext1.setScrollRect(0, 0, 8 * 20, 16, TFT_BLUE); // here we set scroll gap fill color to blue
-  // stext1.setTextColor(TFT_WHITE);                   // White text, no background
-  // stext1.setTextDatum(BR_DATUM);                    // Bottom right coordinate datum
+  stext1.setColorDepth(8);
+  stext1.createSprite(BAR_WIDTH, BAR_HEIGHT);
+  stext1.fillSprite(TFT_BLUE);                                 // Fill sprite with blue
+  stext1.setScrollRect(0, 0, BAR_WIDTH, BAR_HEIGHT, TFT_BLUE); // here we set scroll gap fill color to blue
+  stext1.setTextColor(TFT_WHITE);                              // White text, no background
+  // stext1.setTextDatum(TL_DATUM);                            // Bottom right coordinate datum
 
   // stext2.setColorDepth(8);
   // stext2.createSprite(8 * 20, 16);
@@ -49,8 +49,12 @@ void loop()
   if (pre_index != cur_index)
   {
     d = remocon[device_keys[cur_index]];
-    M5.Lcd.setCursor(0, 0);
-    M5.Lcd.printf("%20s", d->getName());
+    stext1.fillSprite(TFT_BLUE);
+    stext1.drawRect(0, 0, BAR_WIDTH, BAR_HEIGHT, TFT_LIGHTGREY);
+    stext1.drawString(d->getName(), 1, 1, 2);
+    stext1.pushSprite(0, 0);
+    // stext1.scroll(-8 * 1, 0);
+    delay(100);
   }
   pre_index = cur_index;
   if (PlusEncoder.update())
@@ -101,8 +105,4 @@ void loop()
       }
     }
   }
-  // stext1.drawString(d->getName(), 0, 0, 2);
-  // stext1.pushSprite(0, 0);
-  // // stext1.scroll(-8 * 1, 0);
-  // delay(100);
 }

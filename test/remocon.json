@@ -64,5 +64,28 @@
         "0200003838"
       ]
     }
+  },
+  "playstation(dvd)": {
+    "format": "sony",
+    "custom": "093a",
+    "addr_bit": "13",
+    "buttons": {
+      "play": [
+        "32"
+      ],
+      "stop": [
+        "38"
+      ]
+    }
+  },
+  "playstation(controller)": {
+    "format": "sony",
+    "custom": "1b5a",
+    "addr_bit": "13",
+    "buttons": {
+      "batsu": [
+        "32"
+      ]
+    }
   }
 }

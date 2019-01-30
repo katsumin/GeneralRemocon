@@ -23,7 +23,7 @@ private:
   char *_format;
   std::map<const char *, std::vector<const char *>> _buttons;
   std::vector<const char *> _button_keys;
-  char *duplicateString(const char *src)
+  static char *duplicateString(const char *src)
   {
     char *buf = new char[strlen(src)];
     strcpy(buf, src);

@@ -69,7 +69,7 @@ void Device::loadJson(const char *filename, std::map<const char *, Device *> &re
     // Serial.println(root.size());
     for (auto kv : root)
     {
-      const char *name = kv.key;
+      const char *name = duplicateString(kv.key);
       // Serial.println(name);
       JsonObject &o = root[name];
       const char *format = o["format"];

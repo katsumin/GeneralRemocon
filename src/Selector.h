@@ -34,7 +34,7 @@ protected:
 class ReturnSelector : public SelectorUnit
 {
 public:
-  ReturnSelector() : SelectorUnit("<return>") {}
+  ReturnSelector(const char *label) : SelectorUnit(label) {}
 };
 
 class SelectorCategory : public SelectorUnit

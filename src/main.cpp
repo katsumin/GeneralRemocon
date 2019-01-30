@@ -7,18 +7,15 @@
 
 #define BAR_WIDTH (8 * 20)
 #define BAR_HEIGHT (1 * 20)
-
-char *duplicateString(const char *src)
-{
-  char *buf = new char[strlen(src)];
-  strcpy(buf, src);
-  return buf;
-}
+#define BAR_X (0)
+#define BAR_Y (10)
+#define RETURN_KEY "<return>"
+#define ROOT_KEY "root"
 
 TFT_eSprite stext1 = TFT_eSprite(&M5.Lcd); // Sprite object graph1
 const char *filename = "/remocon.json";
 std::map<const char *, Device *> remocon;
-SelectorCategory *selector = new SelectorCategory("root");
+SelectorCategory *selector = new SelectorCategory(ROOT_KEY);
 Device *d = NULL;
 SelectorUnit *childSel = NULL;
 
@@ -26,8 +23,8 @@ void updateLabel(const char *label)
 {
   stext1.fillSprite(TFT_BLUE);
   stext1.drawRect(0, 0, BAR_WIDTH, BAR_HEIGHT, TFT_LIGHTGREY);
-  stext1.drawString(label, 1, 1, 2);
-  stext1.pushSprite(10, 10);
+  stext1.drawString(label, 3, 1, 2);
+  stext1.pushSprite(BAR_X, BAR_Y);
   delay(100);
 }
 
@@ -40,7 +37,6 @@ void setup()
   Device::loadJson(filename, remocon);
   for (auto d : remocon)
   {
-    // device_keys.push_back(key);
     SelectorCategory *s = new SelectorCategory(d.first);
     selector->addChild(s);
     for (auto b : d.second->getButtonKeys())
@@ -48,7 +44,7 @@ void setup()
       SelectorCategory *s2 = new SelectorCategory(b);
       s->addChild(s2);
     }
-    ReturnSelector *r = new ReturnSelector();
+    ReturnSelector *r = new ReturnSelector(RETURN_KEY);
     s->addChild(r);
   }
   M5.Lcd.clear(BLACK);
@@ -74,7 +70,6 @@ void loop()
     // 長押し
     if (PlusEncoder.isLongClick())
     {
-      //   _menu.moveUp();
       Serial.println("longClick");
     }
     // エンコーダ逆回転
@@ -97,7 +92,7 @@ void loop()
       Serial.println("click");
       const char *layer = selector->getLabel();
       Serial.printf("layer: %s, child:%s\n", layer, childSel->getLabel());
-      if (strcmp("root", layer) == 0)
+      if (strcmp(ROOT_KEY, layer) == 0)
       {
         // デバイス選択状態→ボタン選択状態にする
         selector = (SelectorCategory *)childSel;
@@ -112,13 +107,14 @@ void loop()
       {
         // ボタン選択状態
         const char *buttonKey = childSel->getLabel();
-        if (strcmp("<return>", buttonKey) == 0)
+        if (strcmp(RETURN_KEY, buttonKey) == 0)
         {
           // デバイス選択状態に戻る
           updateLabel(selector->getLabel());
+          childSel = selector;
           selector = (SelectorCategory *)selector->getParent();
-          // state = DEVICE_SELECT;
           d = NULL;
+          Serial.printf("%p¥n", selector);
         }
         else
         {

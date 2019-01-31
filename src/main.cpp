@@ -19,13 +19,42 @@ SelectorCategory *selector = new SelectorCategory(ROOT_KEY);
 Device *d = NULL;
 SelectorUnit *childSel = NULL;
 
-void updateLabel(const char *label)
+void updateLabel(const char *label, int step_x, int step_y)
 {
   stext1.fillSprite(TFT_BLUE);
-  stext1.drawRect(0, 0, BAR_WIDTH, BAR_HEIGHT, TFT_LIGHTGREY);
-  stext1.drawString(label, 3, 1, 2);
-  stext1.pushSprite(BAR_X, BAR_Y);
-  delay(100);
+  if (step_x == 0)
+  {
+    if (step_y == 0)
+    {
+      stext1.drawString(label, 3, 1, 2);
+      stext1.pushSprite(BAR_X, BAR_Y);
+      stext1.drawRect(0, 0, BAR_WIDTH, BAR_HEIGHT, TFT_LIGHTGREY);
+    }
+    else
+    {
+      int offset_y = (step_y < 0) ? 16 : -14;
+      for (int i = 0; i < 16; i++)
+      {
+        stext1.drawString(label, 3, i * step_y + offset_y, 2);
+        stext1.pushSprite(BAR_X, BAR_Y);
+        stext1.scroll(0, step_y);
+        stext1.drawRect(0, 0, BAR_WIDTH, BAR_HEIGHT, TFT_LIGHTGREY);
+        delay(30);
+      }
+    }
+  }
+  else
+  {
+    int offset_x = (step_x < 0) ? 16 * 8 - 5 : -14 * 8 - 5;
+    for (int i = 0; i < 16; i++)
+    {
+      stext1.drawString(label, i * step_x * 8 + offset_x, 1, 2);
+      stext1.pushSprite(BAR_X, BAR_Y);
+      stext1.scroll(step_x * 8, 0);
+      stext1.drawRect(0, 0, BAR_WIDTH, BAR_HEIGHT, TFT_LIGHTGREY);
+      delay(30);
+    }
+  }
 }
 
 void setup()
@@ -51,14 +80,14 @@ void setup()
 
   stext1.setColorDepth(8);
   stext1.createSprite(BAR_WIDTH, BAR_HEIGHT);
-  stext1.fillSprite(TFT_BLUE);                                 // Fill sprite with blue
-  stext1.setScrollRect(0, 0, BAR_WIDTH, BAR_HEIGHT, TFT_BLUE); // here we set scroll gap fill color to blue
-  stext1.setTextColor(TFT_WHITE);                              // White text, no background
+  stext1.fillSprite(TFT_BLUE);                                         // Fill sprite with blue
+  stext1.setScrollRect(1, 1, BAR_WIDTH - 2, BAR_HEIGHT - 2, TFT_BLUE); // here we set scroll gap fill color to blue
+  stext1.setTextColor(TFT_WHITE);                                      // White text, no background
   // stext1.setTextDatum(TL_DATUM);                            // Bottom right coordinate datum
 
   childSel = selector->reset();
   const char *key = childSel->getLabel();
-  updateLabel(key);
+  updateLabel(key, 0, -1);
 }
 
 void loop()
@@ -77,14 +106,14 @@ void loop()
     {
       Serial.println("down");
       childSel = selector->prev();
-      updateLabel(childSel->getLabel());
+      updateLabel(childSel->getLabel(), 0, -1);
     }
     // エンコーダ正回転
     if (PlusEncoder.wasUp())
     {
       Serial.println("up");
       childSel = selector->next();
-      updateLabel(childSel->getLabel());
+      updateLabel(childSel->getLabel(), 0, 1);
     }
     // クリック
     if (PlusEncoder.isClick())
@@ -101,7 +130,7 @@ void loop()
         Serial.printf("device:%s, %p\n", deviceKey, d);
         childSel = selector->reset();
         const char *buttonKey = childSel->getLabel();
-        updateLabel(buttonKey);
+        updateLabel(buttonKey, 1, 0);
       }
       else
       {
@@ -110,7 +139,7 @@ void loop()
         if (strcmp(RETURN_KEY, buttonKey) == 0)
         {
           // デバイス選択状態に戻る
-          updateLabel(selector->getLabel());
+          updateLabel(selector->getLabel(), -1, 0);
           childSel = selector;
           selector = (SelectorCategory *)selector->getParent();
           d = NULL;

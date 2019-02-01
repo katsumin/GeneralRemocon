@@ -5,8 +5,11 @@
 #include "Device.h"
 #include "Selector.h"
 
-#define BAR_WIDTH (8 * 20)
-#define BAR_HEIGHT (1 * 20)
+#define SCROLL (18)
+#define OFFSET_X (3)
+#define OFFSET_Y (1)
+#define BAR_WIDTH (8 * (SCROLL + 2))
+#define BAR_HEIGHT (1 * (SCROLL + 2))
 #define BAR_X (0)
 #define BAR_Y (10)
 #define RETURN_KEY "<return>"
@@ -21,40 +24,42 @@ SelectorUnit *childSel = NULL;
 
 void updateLabel(const char *label, int step_x, int step_y)
 {
-  stext1.fillSprite(TFT_BLUE);
-  if (step_x == 0)
+  if (step_x != 0)
   {
-    if (step_y == 0)
+    int offset_x = (step_x < 0) ? SCROLL * 8 + OFFSET_X : -SCROLL * 8 + OFFSET_X;
+    int y = 1;
+    for (int i = 0; i <= SCROLL; i++)
     {
-      stext1.drawString(label, 3, 1, 2);
-      stext1.pushSprite(BAR_X, BAR_Y);
+      int x = i * step_x * 8 + offset_x;
+      stext1.drawString(label, x, 1, 2);
       stext1.drawRect(0, 0, BAR_WIDTH, BAR_HEIGHT, TFT_LIGHTGREY);
-    }
-    else
-    {
-      int offset_y = (step_y < 0) ? 16 : -14;
-      for (int i = 0; i < 16; i++)
-      {
-        stext1.drawString(label, 3, i * step_y + offset_y, 2);
-        stext1.pushSprite(BAR_X, BAR_Y);
-        stext1.scroll(0, step_y);
-        stext1.drawRect(0, 0, BAR_WIDTH, BAR_HEIGHT, TFT_LIGHTGREY);
-        delay(30);
-      }
-    }
-  }
-  else
-  {
-    int offset_x = (step_x < 0) ? 16 * 8 - 5 : -14 * 8 - 5;
-    for (int i = 0; i < 16; i++)
-    {
-      stext1.drawString(label, i * step_x * 8 + offset_x, 1, 2);
       stext1.pushSprite(BAR_X, BAR_Y);
       stext1.scroll(step_x * 8, 0);
-      stext1.drawRect(0, 0, BAR_WIDTH, BAR_HEIGHT, TFT_LIGHTGREY);
+      M5.Lcd.setCursor(160, 120);
+      M5.Lcd.printf("(%3d,%3d)", x, y);
       delay(30);
     }
   }
+  if (step_y != 0)
+  {
+    int x = 3;
+    int offset_y = (step_y < 0) ? SCROLL + OFFSET_Y : -SCROLL + OFFSET_Y;
+    for (int i = 0; i <= SCROLL; i++)
+    {
+      int y = i * step_y + offset_y;
+      stext1.drawString(label, 3, y, 2);
+      stext1.drawRect(0, 0, BAR_WIDTH, BAR_HEIGHT, TFT_LIGHTGREY);
+      stext1.pushSprite(BAR_X, BAR_Y);
+      stext1.scroll(0, step_y);
+      M5.Lcd.setCursor(160, 120);
+      M5.Lcd.printf("(%3d,%3d)", x, y);
+      delay(30);
+    }
+  }
+  // stext1.fillSprite(TFT_BLUE);
+  // stext1.drawString(label, 3, 1, 2);
+  // stext1.drawRect(0, 0, BAR_WIDTH, BAR_HEIGHT, TFT_LIGHTGREY);
+  // stext1.pushSprite(BAR_X, BAR_Y);
 }
 
 void setup()
@@ -62,20 +67,48 @@ void setup()
   M5.begin();
   Wire.begin();
 
-  Device::init(RMT_CHANNEL_0, GPIO_NUM_13);
-  Device::loadJson(filename, remocon);
-  for (auto d : remocon)
+  if (SD.exists(filename))
   {
-    SelectorCategory *s = new SelectorCategory(d.first);
-    selector->addChild(s);
-    for (auto b : d.second->getButtonKeys())
+    Device::init(RMT_CHANNEL_0, GPIO_NUM_13);
+    Device::loadJson(filename, remocon);
+    for (auto d : remocon)
     {
-      SelectorCategory *s2 = new SelectorCategory(b);
-      s->addChild(s2);
+      SelectorCategory *s = new SelectorCategory(d.first);
+      selector->addChild(s);
+      for (auto b : d.second->getButtonKeys())
+      {
+        SelectorCategory *s2 = new SelectorCategory(b);
+        s->addChild(s2);
+      }
+      ReturnSelector *r = new ReturnSelector(RETURN_KEY);
+      s->addChild(r);
     }
-    ReturnSelector *r = new ReturnSelector(RETURN_KEY);
-    s->addChild(r);
   }
+  else
+  {
+    // Demo mode
+    selector->addChild(new SelectorCategory("menu1"));
+    selector->addChild(new SelectorCategory("menu2"));
+    selector->addChild(new SelectorCategory("menu3"));
+    std::vector<SelectorUnit *> children = selector->getChildren();
+    ((SelectorCategory *)(children[0]))->addChild(new SelectorCategory("menu1-1"));
+    ((SelectorCategory *)(children[0]))->addChild(new SelectorCategory("menu1-2"));
+    ((SelectorCategory *)(children[0]))->addChild(new ReturnSelector(RETURN_KEY));
+    ((SelectorCategory *)(children[1]))->addChild(new SelectorCategory("menu2-1"));
+    ((SelectorCategory *)(children[1]))->addChild(new SelectorCategory("menu2-2"));
+    ((SelectorCategory *)(children[1]))->addChild(new SelectorCategory("menu2-3"));
+    ((SelectorCategory *)(children[1]))->addChild(new ReturnSelector(RETURN_KEY));
+    ((SelectorCategory *)(children[2]))->addChild(new SelectorCategory("menu3-1"));
+    ((SelectorCategory *)(children[2]))->addChild(new SelectorCategory("menu3-2"));
+    ((SelectorCategory *)(children[2]))->addChild(new SelectorCategory("menu3-3"));
+    ((SelectorCategory *)(children[2]))->addChild(new SelectorCategory("menu3-4"));
+    ((SelectorCategory *)(children[2]))->addChild(new ReturnSelector(RETURN_KEY));
+    children = ((SelectorCategory *)(children[2]))->getChildren();
+    ((SelectorCategory *)(children[1]))->addChild(new SelectorCategory("menu3-2-1"));
+    ((SelectorCategory *)(children[1]))->addChild(new ReturnSelector(RETURN_KEY));
+    Serial.println(children[1]->getLabel());
+  }
+
   M5.Lcd.clear(BLACK);
 
   stext1.setColorDepth(8);

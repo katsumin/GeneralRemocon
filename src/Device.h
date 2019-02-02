@@ -43,30 +43,30 @@ public:
   ushort getCustom() { return _custom_code; }
   std::map<const char *, std::vector<const char *>> getButtons() { return _buttons; }
   std::vector<const char *> getButtonKeys() { return _button_keys; }
-  void print()
-  {
-    String s = "device: ";
-    s.concat(_name);
-    s.concat("\n format:");
-    s.concat(_format);
-    s.concat("\n custom:");
-    s.concat(_custom_code);
-    s.concat("\n buttons:\n  ");
-    for (auto &kv : _buttons)
-    {
-      const char *key = kv.first;
-      std::vector<const char *> v = kv.second;
-      s.concat(key);
-      s.concat(" -> [");
-      for (const char *d : _buttons[key])
-      {
-        s.concat(d);
-        s.concat(",");
-      }
-      s.concat("]\n  ");
-    }
-    Serial.println(s);
-  }
+  // void print()
+  // {
+  //   String s = "device: ";
+  //   s.concat(_name);
+  //   s.concat("\n format:");
+  //   s.concat(_format);
+  //   s.concat("\n custom:");
+  //   s.concat(_custom_code);
+  //   s.concat("\n buttons:\n  ");
+  //   for (auto &kv : _buttons)
+  //   {
+  //     const char *key = kv.first;
+  //     std::vector<const char *> v = kv.second;
+  //     s.concat(key);
+  //     s.concat(" -> [");
+  //     for (const char *d : _buttons[key])
+  //     {
+  //       s.concat(d);
+  //       s.concat(",");
+  //     }
+  //     s.concat("]\n  ");
+  //   }
+  //   Serial.println(s);
+  // }
   virtual void send(const char *key) {}
 
 protected:

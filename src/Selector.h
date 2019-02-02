@@ -2,6 +2,9 @@
 #define _SELECTOR_H_
 #include <Arduino.h>
 #include <M5Stack.h>
+#include <functional>
+
+#define RETURN_KEY "<return>"
 
 class SelectorCategory;
 class SelectorUnit
@@ -9,18 +12,18 @@ class SelectorUnit
 private:
   const char *_label;
   SelectorCategory *_parent;
+  std::function<void(SelectorUnit *)> _callback = NULL;
 
 public:
-  SelectorUnit(const char *label)
-  {
-    setLabel(label);
-    setParent(NULL);
-  }
+  SelectorUnit(const char *label) : _label(label), _parent(NULL) {}
+  SelectorUnit(const char *label, std::function<void(SelectorUnit *)> callback) : _label(label), _callback(callback) {}
   const char *getLabel() { return _label; }
   void setLabel(const char *label) { _label = label; }
   SelectorCategory *getParent() { return _parent; }
   void setParent(SelectorCategory *parent) { _parent = parent; }
-  virtual boolean isLeaf() { return true; }
+  std::function<void(SelectorUnit *)> getCallback() { return _callback; }
+  void setCallback(std::function<void(SelectorUnit *)> callback) { _callback = callback; }
+  virtual bool isLeaf() { return true; }
 
 protected:
   char *duplicateString(const char *src)
@@ -34,7 +37,7 @@ protected:
 class ReturnSelector : public SelectorUnit
 {
 public:
-  ReturnSelector(const char *label) : SelectorUnit(label) {}
+  ReturnSelector() : SelectorUnit(RETURN_KEY) {}
 };
 
 class SelectorCategory : public SelectorUnit
@@ -44,17 +47,19 @@ private:
   int _index;
 
 public:
-  SelectorCategory(const char *label) : SelectorUnit(label) { _index = 0; }
+  SelectorCategory(const char *label) : SelectorUnit(label), _index(0) {}
+  SelectorCategory(const char *label, std::function<void(SelectorUnit *)> callback) : SelectorUnit(label, callback), _index(0) {}
   void addChild(SelectorUnit *child)
   {
     _children.push_back(child);
     child->setParent(this);
   }
   std::vector<SelectorUnit *> getChildren() { return _children; }
+  SelectorUnit *current() { return isLeaf() ? NULL : _children[_index]; }
   SelectorUnit *reset()
   {
     _index = 0;
-    return _children[_index];
+    return current();
   }
   SelectorUnit *next()
   {
@@ -62,7 +67,7 @@ public:
     {
       _index = 0;
     }
-    return _children[_index];
+    return current();
   }
   SelectorUnit *prev()
   {
@@ -70,9 +75,9 @@ public:
     {
       _index = _children.size() - 1;
     }
-    return _children[_index];
+    return current();
   }
-  virtual boolean isLeaf() { return _children.empty(); }
+  virtual bool isLeaf() { return _children.empty(); }
 };
 
 #endif

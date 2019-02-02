@@ -4,38 +4,35 @@
 #include <M5Stack.h>
 #include "Selector.h"
 
-#define BAR_WIDTH (8 * 20)
-#define BAR_HEIGHT (1 * 20)
+#define SCROLL (18)
+#define SCROLL_X (18)
+#define SCROLL_Y (18)
+#define SCROLL_STEP_X (8)
+#define SCROLL_STEP_Y (1)
+#define BAR_WIDTH (SCROLL_STEP_X * SCROLL_X + 2)
+#define BAR_HEIGHT (SCROLL_STEP_Y * SCROLL_Y + 2)
+#define OFFSET_X (3)
+#define OFFSET_Y (SCROLL_Y / 2 - 16 / 2)
 
 class JogSelector
 {
 private:
+  int _x;
+  int _y;
   SelectorCategory *_selector;
-  TFT_eSprite _stext1 = TFT_eSprite(&M5.Lcd); // Sprite object graph1
+  void updateLabel(const char *label, int step_x, int step_y);
 
 public:
-  JogSelector(SelectorCategory *selector)
+  JogSelector(SelectorCategory *root)
   {
-    _selector = selector;
+    // Serial.println(root->current()->getLabel());
+    _selector = (SelectorCategory *)root->current();
   }
   ~JogSelector() {}
-  void init(int x, int y)
-  {
-    _stext1.setColorDepth(8);
-    _stext1.createSprite(BAR_WIDTH, BAR_HEIGHT);
-    _stext1.fillSprite(TFT_BLUE);                                         // Fill sprite with blue
-    _stext1.setScrollRect(1, 1, BAR_WIDTH - 2, BAR_HEIGHT - 2, TFT_BLUE); // here we set scroll gap fill color to blue
-    _stext1.setTextColor(TFT_WHITE);                                      // White text, no background
-  }
-  void next()
-  {
-  }
-  void prev()
-  {
-  }
-  void execute()
-  {
-  }
+  void init(int x, int y);
+  void update();
+  void next();
+  void prev();
 };
 
 #endif

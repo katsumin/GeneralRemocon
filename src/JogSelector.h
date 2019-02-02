@@ -4,7 +4,6 @@
 #include <M5Stack.h>
 #include "Selector.h"
 
-#define SCROLL (18)
 #define SCROLL_X (18)
 #define SCROLL_Y (18)
 #define SCROLL_STEP_X (8)

@@ -8,21 +8,21 @@ void JogSelector::update()
     if (PlusEncoder.wasDown())
     {
       // エンコーダ逆回転
-      Serial.println("down");
+      // Serial.println("down");
       prev();
       updateLabel(_selector->getLabel(), 0, -1);
     }
     else if (PlusEncoder.wasUp())
     {
       // エンコーダ正回転
-      Serial.println("up");
+      // Serial.println("up");
       next();
       updateLabel(_selector->getLabel(), 0, 1);
     }
     // クリック
     if (PlusEncoder.isClick())
     {
-      Serial.println("click");
+      // Serial.println("click");
       const char *label = _selector->getLabel();
       if (strcmp(RETURN_KEY, label) == 0)
       {
@@ -70,16 +70,29 @@ void JogSelector::updateLabel(const char *label, int step_x, int step_y)
   int offset_y = -step_y * SCROLL_Y + OFFSET_Y;
   int x = offset_x;
   int y = offset_y;
-  if (step_x != 0 || step_y != 0)
+  if (step_x != 0)
   {
-    for (int i = 0; i <= SCROLL; i++)
+    for (int i = 0; i <= SCROLL_X; i++)
     {
       x = i * step_x * SCROLL_STEP_X + offset_x;
+      _stext1.drawString(label, x, y, 2);
+      _stext1.drawRect(0, 0, BAR_WIDTH, BAR_HEIGHT, TFT_LIGHTGREY);
+      _stext1.pushSprite(_x, _y);
+      _stext1.scroll(step_x * SCROLL_STEP_X, 0);
+      // M5.Lcd.setCursor(160, 120);
+      // M5.Lcd.printf("(%3d,%3d)", x, y);
+      delay(10);
+    }
+  }
+  else if (step_y != 0)
+  {
+    for (int i = 0; i <= SCROLL_Y; i++)
+    {
       y = i * step_y * SCROLL_STEP_Y + offset_y;
       _stext1.drawString(label, x, y, 2);
       _stext1.drawRect(0, 0, BAR_WIDTH, BAR_HEIGHT, TFT_LIGHTGREY);
       _stext1.pushSprite(_x, _y);
-      _stext1.scroll(step_x * SCROLL_STEP_X, step_y * SCROLL_STEP_Y);
+      _stext1.scroll(0, step_y * SCROLL_STEP_Y);
       // M5.Lcd.setCursor(160, 120);
       // M5.Lcd.printf("(%3d,%3d)", x, y);
       delay(10);
